@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>Product Manager</title>
+</head>
+<body align="center">
+<h2>Welcome!</h2>
+
+<!-- Thông tin user đã đăng nhập -->
+<div sec:authorize="isAuthenticated()">
+    <p>Hello, <span sec:authentication="name"></span></p>
+    <p>Roles: <span sec:authentication="principal.authorities"></span></p>
+    <form th:action="@{/logout}" method="post">
+        <input type="submit" value="Logout"/>
+    </form>
+</div>
+
+<!-- Quản lý sản phẩm -->
+<h3>Product Manager</h3>
+
+<!-- Nút thêm mới sản phẩm: chỉ ADMIN, CREATOR -->
+<div sec:authorize="hasAnyAuthority('CREATOR','ADMIN')">
+    <a th:href="@{/new}">Create New Product</a>
+</div>
+
+<table border="1" cellpadding="10">
+    <thead>
+        <tr>
+            <th>Product ID</th>
+            <th>Name</th>
+            <th>Brand</th>
+            <th>Made In</th>
+            <th>Price</th>
+            <th sec:authorize="hasAnyAuthority('ADMIN','EDITOR')">Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr th:each="product : ${listProducts}">
+            <td th:text="${product.id}">Product ID</td>
+            <td th:text="${product.name}">Name</td>
+            <td th:text="${product.brand}">Brand</td>
+            <td th:text="${product.madein}">Made In</td>
+            <td th:text="${product.price}">Price</td>
+            <td sec:authorize="hasAnyAuthority('ADMIN','EDITOR')">
+                <a th:href="@{'/edit/' + ${product.id}}">Edit</a>
+                &nbsp;&nbsp;&nbsp;
+                <a sec:authorize="hasAuthority('ADMIN')"
+                   th:href="@{'/delete/' + ${product.id}}">Delete</a>
+            </td>
+        </tr>
+    </tbody>
+</table>
+
+</body>
+</html>
